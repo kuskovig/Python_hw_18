@@ -1,4 +1,5 @@
 import logging
+import allure
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -23,19 +24,26 @@ class BasePage:
         self.browser.get(self.url + relative_url)
 
     def is_element_present(self, _by, _locator):
-        self.logger.info(f"Trying to find {_locator} element by {_by}")
+        self.logger.info(f"Trying to find '{_locator}' element by '{_by}'")
         try:
             self.browser.find_element(_by, _locator)
         except NoSuchElementException:
+            self.logger.warning(f"Couldn't fined element")
             return False
         return True
 
+    @allure.step("Waiting for the {_selector} element for {timeout} seconds")
     def wait_for_element(self, _by, _selector, timeout=2):
         self.logger.info(f"Waiting for {_selector} element by {_by} for {timeout} seconds")
         try:
             element = WebDriverWait(self.browser, timeout).until(EC.presence_of_element_located((_by, _selector)))
         except TimeoutException:
             self.logger.warning(f"Element wasn't found in {timeout} seconds")
+            allure.attach(
+                name=self.browser.sessdion_id,
+                body=self.browser.get_screenshot_as_png(),
+                attachment_type=allure.attachment_type.PNG
+            )
             raise AssertionError(f"Couldn't find element for {timeout} seconds")
         return element
     '''

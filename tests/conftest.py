@@ -4,7 +4,7 @@ import logging
 
 from selenium import webdriver
 
-logging.basicConfig(level=logging.INFO, filename="logs/selenium.log")
+logging.basicConfig(level=logging.INFO, filename="logs/selenium.log", filemode="w")
 browser_logger = logging.getLogger("BROWSER_LOGGER")
 
 
@@ -22,7 +22,20 @@ def pytest_addoption(parser):
                      default=get_local_opencart_address())
     parser.addoption("--executor",
                      action="store",
-                     default="127.0.0.1")
+                     default="local")
+    parser.addoption("--bversion",
+                     action="store")
+    parser.addoption("--VNC",
+                     action="store_true",
+                     default=False)
+    parser.addoption("--video",
+                     action="store_true",
+                     default=False)
+    parser.addoption("--logs",
+                     action="store_true",
+                     default=False)
+
+
 
 
 @pytest.fixture
@@ -30,25 +43,44 @@ def browser(request):
     test_name = request.node.name
 
     def teardown():
-        browser_logger.info("CLOSING DRIVER")
+        browser_logger.info("==============> CLOSING DRIVER")
         driver.quit()
 
     driver = None
     browser_choice = request.config.getoption("--browser")
-    # executor_choice = request.config.getoption("--executor")
+    executor_choice = request.config.getoption("--executor")
+    browser_version = request.config.getoption("--bversion")
+    vnc = request.config.getoption("--VNC")
+    video = request.config.getoption("--video")
+    logs = request.config.getoption("--logs")
 
-    if browser_choice == "chrome":
-        driver = webdriver.Chrome()
-    elif browser_choice == "firefox":
-        driver = webdriver.Firefox()
-    elif browser_choice == "opera":
-        driver = webdriver.Opera()
-    elif browser_choice == "edge":
-        driver = webdriver.Edge()
+    if executor_choice == "local":
+
+        if browser_choice == "chrome":
+            driver = webdriver.Chrome()
+        elif browser_choice == "firefox":
+            driver = webdriver.Firefox()
+        elif browser_choice == "opera":
+            driver = webdriver.Opera()
+        elif browser_choice == "edge":
+            driver = webdriver.Edge()
+    else:
+        caps = {
+            "browserName": browser_choice,
+            "browserVersion": browser_version,
+            "selenoid:options": {
+                "enableVNC": vnc,
+                "enableVideo": video,
+                "enableLog": logs
+            }
+        }
+        driver = webdriver.Remote(
+            command_executor=executor_choice,
+            desired_capabilities=caps)
 
     request.addfinalizer(teardown)
     driver.set_window_size(1960, 1080)
-    browser_logger.info(f"===> Starting {test_name}")
+    browser_logger.info(f"==============> Starting {test_name}")
     return driver
 
 

@@ -27,6 +27,7 @@ class MainPage(BasePage):
                 .until(EC.presence_of_all_elements_located(MainPage.RECOMMENDED_WISHLIST_BUTTONS))[random_recommended]
             random_item_wish.click()
         except TimeoutException:
+            self.logger.warning(f"Couldn't fined element in {timeout} seconds")
             raise AssertionError(f"Couldn't fined element in {timeout} seconds")
 
     def close_wishlist_alert(self):
