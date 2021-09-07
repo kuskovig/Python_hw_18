@@ -24,8 +24,9 @@ def pytest_addoption(parser):
                      action="store",
                      default="local")
     parser.addoption("--bversion",
-                     action="store")
-    parser.addoption("--VNC",
+                     action="store",
+                     default="92.0")
+    parser.addoption("--vnc",
                      action="store_true",
                      default=False)
     parser.addoption("--video",
@@ -34,8 +35,6 @@ def pytest_addoption(parser):
     parser.addoption("--logs",
                      action="store_true",
                      default=False)
-
-
 
 
 @pytest.fixture
@@ -50,7 +49,7 @@ def browser(request):
     browser_choice = request.config.getoption("--browser")
     executor_choice = request.config.getoption("--executor")
     browser_version = request.config.getoption("--bversion")
-    vnc = request.config.getoption("--VNC")
+    vnc = request.config.getoption("--vnc")
     video = request.config.getoption("--video")
     logs = request.config.getoption("--logs")
 
@@ -65,9 +64,11 @@ def browser(request):
         elif browser_choice == "edge":
             driver = webdriver.Edge()
     else:
+        executor_url = f"http://{executor_choice}:4444/wd/hub"
         caps = {
             "browserName": browser_choice,
             "browserVersion": browser_version,
+            "name": test_name,
             "selenoid:options": {
                 "enableVNC": vnc,
                 "enableVideo": video,
@@ -75,7 +76,7 @@ def browser(request):
             }
         }
         driver = webdriver.Remote(
-            command_executor=executor_choice,
+            command_executor=executor_url,
             desired_capabilities=caps)
 
     request.addfinalizer(teardown)

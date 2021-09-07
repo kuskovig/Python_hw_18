@@ -26,6 +26,7 @@ class AdminPage(BasePage):
     PRODUCT_CREATION_META = (By.CSS_SELECTOR, "#input-meta-title1")
     PRODUCT_CREATION_DATA_TAB = (By.CSS_SELECTOR, ".nav-tabs>li:nth-child(2)")
     PRODUCT_CREATION_MODEL = (By.CSS_SELECTOR, "#input-model")
+    PRODUCTLIST_TABLE_BODY = (By.CSS_SELECTOR, "tbody td")
 
     def enter_data(self, _by, _locator, data):
         element = self.wait_for_element(_by, _locator)
@@ -45,7 +46,7 @@ class AdminPage(BasePage):
         self.enter_data(*self.INPUT_USERNAME, 'qwe')
         self.enter_data(*self.INPUT_PASSWORD, 'zxc')
         self.click_login()
-    
+
     def should_be_invalid_user_alert(self):
         self.logger.info(f"Checking presence of '{Alerts.ERROR_ALERT[1]}' element")
         self.is_element_present(*Alerts.ERROR_ALERT)
@@ -82,12 +83,18 @@ class AdminPage(BasePage):
         self.save_product()
 
     def delete_product(self, name):
+        if not self.browser.title == "Products":
+            self.wait_for_element_and_click(*self.ADMINPAGE_CATALOG)
+            self.wait_for_element_and_click(*self.ADMINPAGE_LIST_OF_PRODUCTS)
         self.enter_data(*self.ADMINPAGE_PRODUCTS_FILTER_BY_NAME, name)
         self.wait_for_element_and_click(*self.ADMINPAGE_PRODUCTS_FILTER_BUTTON)
         self.wait_for_element_and_click(*self.ADMINPAGE_SELECT_PRODUCT_CHECKBOX)
         self.wait_for_element_and_click(*self.ADMINPAGE_DELETE_PRODUCT_BUTTON)
         alert = self.browser.switch_to.alert
         alert.accept()
+        self.enter_data(*self.ADMINPAGE_PRODUCTS_FILTER_BY_NAME, name)
+        self.wait_for_element_and_click(*self.ADMINPAGE_PRODUCTS_FILTER_BUTTON)
+        assert self.wait_for_element(*self.PRODUCTLIST_TABLE_BODY).text == "No results!"
 
     def add_and_delete_product(self, name):
         """adds new product, then filters by name to find it, checks it and presses delete button"""

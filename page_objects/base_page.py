@@ -40,7 +40,7 @@ class BasePage:
         except TimeoutException:
             self.logger.warning(f"Element wasn't found in {timeout} seconds")
             allure.attach(
-                name=self.browser.sessdion_id,
+                name=self.browser.session_id,
                 body=self.browser.get_screenshot_as_png(),
                 attachment_type=allure.attachment_type.PNG
             )
@@ -53,7 +53,8 @@ class BasePage:
     def wait_for_element_and_click(self, _by, _selector, timeout=2):
         element = self.wait_for_element(_by, _selector, timeout)
         self.logger.info(f"clicking '{element}' element")
-        ActionChains(self.browser).pause(0.1).move_to_element(element).click().perform()
+        element.click()
+        #ActionChains(self.browser).pause(0.1).move_to_element(element).pause(2).click().perform()
 
     def wait_for_element_to_disappear(self, _by, _selector, timeout=2):
         self.logger.info(f"Waiting for {_selector} element by {_by} for {timeout} seconds to disappear")
@@ -77,3 +78,8 @@ class BasePage:
         """
         self.change_currency(currency)
         assert self.wait_for_element(*self.CURRENCY_SYMBOL).text == symbol, "Currency symbol haven't changed"
+
+    def wow(self):
+        element = self.wait_for_element(*self.CURRENCY_PICKER)
+        ActionChains(self.browser).pause(0.1).move_to_element(element).click().perform()
+        time.sleep(2)
