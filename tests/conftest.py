@@ -24,8 +24,7 @@ def pytest_addoption(parser):
                      action="store",
                      default="local")
     parser.addoption("--bversion",
-                     action="store",
-                     default="92.0")
+                     action="store")
     parser.addoption("--vnc",
                      action="store_true",
                      default=False)
