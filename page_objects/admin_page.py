@@ -2,6 +2,7 @@ from .base_page import BasePage
 from .alerts import Alerts
 from selenium.webdriver.common.by import By
 from test_data.get_product import product as newproduct
+import allure
 
 
 class AdminPage(BasePage):
@@ -28,6 +29,7 @@ class AdminPage(BasePage):
     PRODUCT_CREATION_MODEL = (By.CSS_SELECTOR, "#input-model")
     PRODUCTLIST_TABLE_BODY = (By.CSS_SELECTOR, "tbody td")
 
+    @allure.step("Enters data = 'data' into '_locator' element")
     def enter_data(self, _by, _locator, data):
         element = self.wait_for_element(_by, _locator)
         element.clear()
@@ -61,7 +63,7 @@ class AdminPage(BasePage):
 
     def open_add_product_form(self):
         self.wait_for_element_and_click(*self.ADMINPAGE_CATALOG)
-        self.wait_for_element_and_click(*self.ADMINPAGE_LIST_OF_PRODUCTS)
+        self.wait_for_element_and_click(*self.ADMINPAGE_LIST_OF_PRODUCTS, 5)
         self.wait_for_element_and_click(*self.ADMINPAGE_ADD_NEW_PRODUCT_BUTTON)
 
     def fill_required_fields_in_product(self, prodname):

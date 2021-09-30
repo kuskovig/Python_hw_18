@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import random
+import allure
 
 
 class MainPage(BasePage):
@@ -19,7 +20,8 @@ class MainPage(BasePage):
     WISHLIST_ATTEMPT_ALERT = (By.CSS_SELECTOR, ".alert")
     WISHLIST_ATTEMPT_ALERT_CLOSE = (By.CSS_SELECTOR, ".alert button")
     SEARCH_BAR_SEARCH_BUTTON = (By.CSS_SELECTOR, "span.input-group-btn button")
-    
+
+    @allure.step("Adding random item to wishlist")
     def wish_random_recommended_item(self, timeout=2):
         random_recommended = random.randint(0, 3)
         try:
@@ -28,6 +30,12 @@ class MainPage(BasePage):
             random_item_wish.click()
         except TimeoutException:
             self.logger.warning(f"Couldn't fined element in {timeout} seconds")
+            self.logger.warning(f"Couldn't fined element")
+            allure.attach(
+                name=self.browser.session_id,
+                body=self.browser.get_screenshot_as_png(),
+                attachment_type=allure.attachment_type.PNG
+            )
             raise AssertionError(f"Couldn't fined element in {timeout} seconds")
 
     def close_wishlist_alert(self):
