@@ -86,4 +86,4 @@ def browser(request):
 
 @pytest.fixture
 def url(request):
-    return request.config.getoption("--url")
+    return f'http://{request.config.getoption("--url")}:8081'
