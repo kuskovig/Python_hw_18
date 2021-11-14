@@ -9,7 +9,7 @@ browser_logger = logging.getLogger("BROWSER_LOGGER")
 
 
 def get_local_opencart_address():
-    return "http://" + socket.gethostbyname(socket.gethostname()) + ":8081"
+    return socket.gethostbyname(socket.gethostname())
 
 
 def pytest_addoption(parser):
